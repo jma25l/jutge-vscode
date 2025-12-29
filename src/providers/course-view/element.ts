@@ -54,7 +54,7 @@ export class CourseTreeElement {
                 }
                 break
             }
-            case IconStatus.PRESENTATION_ERROR: {
+            case (IconStatus.SCORED, IconStatus.PRESENTATION_ERROR): {
                 if (status === SubmissionStatus.AC) {
                     this.iconStatus = IconStatus.ACCEPTED
                 }

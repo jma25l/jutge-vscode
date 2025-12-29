@@ -20,6 +20,7 @@ export enum IconStatus {
     REJECTED = "rejected",
     NONE = "none",
     FAILED = "failed",
+    SCORED = "scored",
 }
 
 export const status2IconStatus: Record<SubmissionStatus, IconStatus> = {
@@ -30,6 +31,7 @@ export const status2IconStatus: Record<SubmissionStatus, IconStatus> = {
     CE: IconStatus.REJECTED,
     EE: IconStatus.REJECTED,
     TLE: IconStatus.REJECTED,
+    SC: IconStatus.SCORED,
     Pending: IconStatus.NONE,
     Failed: IconStatus.FAILED,
 }
@@ -42,6 +44,7 @@ export enum SubmissionStatus {
     CE = "CE",
     EE = "EE",
     TLE = "TLE",
+    SC = "SC",
     PENDING = "Pending",
     FAILED = "Failed",
 }
@@ -50,6 +53,7 @@ export type ProblemHandler = {
     handler: string
     source_modifier: string
     compilers: string
+    checker?: string
 }
 
 export type CustomTestcase = {

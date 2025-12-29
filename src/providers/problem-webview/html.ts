@@ -180,6 +180,15 @@ export function htmlNotSupportedHandler() {
       `
 }
 
+export function htmlNotSupportedChecker() {
+    return /*html*/ `
+                <div class="warning">
+                    ${warningIcon()}
+                    <span>Local testcase checking is not fully supported for this problem, the <i>expected output</i> may not be the only valid solution.</span>
+                </div>
+      `
+}
+
 export function htmlTestcaseHeader(title: string) {
     return `
         <h2>
@@ -212,6 +221,7 @@ export function htmlTestcases(
                     </div>
                 </div>
                 <div class="panels">
+                    ${problemHandler?.checker && problemHandler.checker !== "std" ? htmlNotSupportedChecker() : ""}
                     ${testcases.map(htmlForTestcase).join("") || "No testcases found."}
                 </div>
             `
