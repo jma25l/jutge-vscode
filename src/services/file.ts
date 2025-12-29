@@ -203,7 +203,7 @@ export class FileService extends StaticLogger {
             if (existsSync(fsPath)) {
                 const fileContent = await readFile(fsPath)
                 customTestcases.push({
-                    input: fileContent.toString(),
+                    input: fileContent.toString().replaceAll(/\r\n/g, "\n"),
                     index: i,
                 })
             }
