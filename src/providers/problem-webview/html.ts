@@ -1,7 +1,7 @@
 import { Testcase } from "@/jutge_api_client"
 import { CustomTestcase, ProblemHandler } from "@/types"
 import { Button as htmlButton } from "@/webview/components/button"
-import { chevronDown, icons, warningIcon } from "@/webview/components/icons"
+import { chevronDown, icons, warningCard, warningIcon } from "@/webview/components/icons"
 import { makeSpacesVisible } from "@/webview/utils"
 import { Uri } from "vscode"
 
@@ -171,22 +171,16 @@ export function htmlNotSupportedHandler() {
                 <h2 class="flex-grow-1">Testcases</h2>
             </div>
             <div class="panels">
-                <div class="warning">
-                    ${warningIcon()}
-                    <span>Local testcase running is not supported for this problem.</span>
-                </div>
+                ${warningCard("Local testcase running is not supported for this problem.")}
             </div>
         </div>
       `
 }
 
 export function htmlNotSupportedChecker() {
-    return /*html*/ `
-                <div class="warning">
-                    ${warningIcon()}
-                    <span>Local testcase checking is not fully supported for this problem, the <i>expected output</i> may not be the only valid solution.</span>
-                </div>
-      `
+    return warningCard(
+        "Local testcase checking is not fully supported for this problem, the <i>expected output</i> may not be the only valid solution."
+    )
 }
 
 export function htmlTestcaseHeader(title: string) {
