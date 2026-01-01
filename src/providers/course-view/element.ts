@@ -10,6 +10,7 @@ export const ELEMENT_ID_SEPARATOR = "/"
 export class CourseTreeElement {
     public type: CourseItemType
     public key: string
+    public nm: string
     public label: string
     public description: string
     public iconStatus: IconStatus
@@ -68,10 +69,12 @@ export class CourseTreeElement {
         key: string,
         label: string,
         iconStatus: IconStatus,
+        order: number,
         description?: string
     ) {
         this.type = type
-        this.key = key
+        this.key = type === "problem" ? order + "_" + key : key
+        this.nm = key
         this.label = label
         this.iconStatus = iconStatus
         this.description = description || ""

@@ -195,6 +195,13 @@ const commandShowProblem = async (problemNm: string | undefined, order: number) 
         }
     }
 
+    let language = ""
+    if (problemNm.includes("_")) {
+        let split = problemNm.split("_")
+        problemNm = split[0]
+        language = split[1]
+    }
+
     // Check that the problem really exists
     if (!(await JutgeService.problemExists(problemNm))) {
         vscode.window.showErrorMessage(`Problem ${problemNm} does not exist`)
