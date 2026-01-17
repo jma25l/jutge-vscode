@@ -277,6 +277,6 @@ export async function activate(context: vscode.ExtensionContext) {
     await vscode.commands.executeCommand(
         "setContext",
         "jutge-vscode.isDevMode",
-        process.env.MODE === "development"
+        ["development", "semidevelopment"].includes(process.env.MODE || "production")
     )
 }
