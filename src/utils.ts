@@ -115,7 +115,7 @@ export function sanitizeTitle(title: string): string {
             title = title.replaceAll(c, repl)
         }
     }
-    title = title.replaceAll(/[^a-zA-Z0-9_]/g, "") // Remove other special characters except underscores
+    title = title.replaceAll(/[^a-zA-Z0-9_-]/g, "") // Remove other special characters except underscores
     return title
 }
 

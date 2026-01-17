@@ -125,7 +125,7 @@ export class SubmissionService extends StaticLogger {
                 }
             }
         )
-        if (result) {
+        if (result && result.submission) {
             this._sendStatusUpdate(problem.problem_nm, result.verdict)
             await this._showVerdictNotification(
                 problem,
@@ -171,7 +171,7 @@ export class SubmissionService extends StaticLogger {
         problem: Problem,
         submission_id: string,
         verdict: string,
-        submission: j.Submission | undefined
+        submission: j.Submission
     ) {
         let text = (verdict && this._verdictText.get(verdict)) || "❓"
         switch (verdict) {
@@ -180,8 +180,8 @@ export class SubmissionService extends StaticLogger {
                 text += ": TBA/TBA"
                 break
             default: //Mainly for EE
-                if (submission && submission.veredict_info) {
-                    text += ": " + submission?.veredict_info
+                if (submission.veredict_info) {
+                    text += ": " + submission.veredict_info
                 }
         }
         const host = JutgeService.isExamMode() ? "https://exam.jutge.org" : "https://jutge.org"

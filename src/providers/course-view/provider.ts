@@ -33,7 +33,7 @@ export class JutgeCourseTreeProvider
                 arguments: [item.element.nm, item.element.order],
             }
         }
-        this.problemName2TreeItem.set(element.key, item) // keep the item in a map, by problemNm (itemKey)
+        this.problemName2TreeItem.set(element.nm, item) // keep the item in a map, by problemNm (itemKey)
         return item
     }
 

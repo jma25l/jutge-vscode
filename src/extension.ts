@@ -197,7 +197,7 @@ const commandShowProblem = async (problemNm: string | undefined, order: number) 
 
     let language = ""
     if (problemNm.includes("_")) {
-        let split = problemNm.split("_")
+        let split = problemNm.replaceAll(" ", "").split("_")
         problemNm = split[0]
         language = split[1]
     }
