@@ -31,6 +31,7 @@ import * as vscode from "vscode"
 import { FileService } from "./file"
 import { JutgeService } from "./jutge"
 import { SubmissionService } from "./submission"
+import { checkerInfoByName } from "./runners/checkers"
 
 export class ProblemHandler extends Logger {
     panel_: ProblemWebviewPanel
@@ -233,18 +234,18 @@ export class ProblemHandler extends Logger {
             const document = await this.__getDocument(filePath)
 
             this.log.debug(`Executing code with ${runner.constructor.name}`)
-            const output = runner
-                .run(filePath, testcase.input, document)
-                .replaceAll(/\r\n/g, "\n")
+            const output = runner.run(filePath, testcase.input, document)
             this.log.debug(`Code execution completed`)
 
             const handler = this.problem_.handler?.handler || "<unknown>"
             switch (handler) {
                 case "std": {
+                    const checker = checkerInfoByName(this.problem_.handler?.checker)
+
                     const expected = testcase.expected.toString("utf-8")
                     const passed = output !== null && output === expected
                     return {
-                        status: passed ? TestcaseStatus.PASSED : TestcaseStatus.FAILED,
+                        status: checker.runner.run(output, expected, this.problem_.handler),
                         output,
                     }
                 }

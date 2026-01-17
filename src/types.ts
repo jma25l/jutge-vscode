@@ -54,6 +54,12 @@ export type ProblemHandler = {
     source_modifier: string
     compilers: string
     checker?: string
+    func_name?: string
+    separator?: string //for elastic checker
+    separator1?: string //for elastic2 checker
+    separator2?: string //for elastic2 checker
+    starting?: string //for elastic2 checker
+    ending?: string //for elastic2 checker
 }
 
 export type CustomTestcase = {

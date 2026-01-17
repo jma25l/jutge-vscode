@@ -1,4 +1,5 @@
 import { Testcase } from "@/jutge_api_client"
+import { checkerInfoByName } from "@/services/runners/checkers"
 import { CustomTestcase, ProblemHandler } from "@/types"
 import { Button as htmlButton } from "@/webview/components/button"
 import { chevronDown, icons, warningCard, warningIcon } from "@/webview/components/icons"
@@ -215,7 +216,7 @@ export function htmlTestcases(
                     </div>
                 </div>
                 <div class="panels">
-                    ${problemHandler?.checker && problemHandler.checker !== "std" ? htmlNotSupportedChecker() : ""}
+                    ${!checkerInfoByName(problemHandler?.checker).implemented ? htmlNotSupportedChecker() : ""}
                     ${testcases.map(htmlForTestcase).join("") || "No testcases found."}
                 </div>
             `
