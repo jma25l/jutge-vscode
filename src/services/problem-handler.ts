@@ -241,12 +241,12 @@ export class ProblemHandler extends Logger {
             switch (handler) {
                 case "std": {
                     const checker = checkerInfoByName(this.problem_.handler?.checker)
-
+                    const uniformed = output.replaceAll("\r\n", "\n")
                     const expected = testcase.expected.toString("utf-8")
                     const passed = output !== null && output === expected
                     return {
-                        status: checker.runner.run(output, expected, this.problem_.handler),
-                        output,
+                        status: checker.runner.run(uniformed, expected, this.problem_.handler),
+                        output: uniformed,
                     }
                 }
                 case "graphic": {

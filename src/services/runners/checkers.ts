@@ -18,6 +18,35 @@ export interface CheckerInfo {
     driver: string
 }
 
+class ElasticRunner implements CheckerRunner {
+    run(output: string, solution: string, problemHandler: ProblemHandler) {
+        if (output === solution) {
+            return TestcaseStatus.PASSED
+        }
+
+        const aV = output.split("\n")
+        aV.pop() // Remove final line after endl
+
+        const bV = solution.split("\n")
+        bV.pop()
+
+        if (aV.length !== bV.length) {
+            return TestcaseStatus.FAILED
+        }
+
+        aV.sort()
+        bV.sort()
+
+        const n = aV.length
+        for (let i = 0; i < n; ++i) {
+            if (aV[i] !== bV[i]) {
+                return TestcaseStatus.FAILED
+            }
+        }
+        return TestcaseStatus.PASSED
+    }
+}
+
 class STDRunner implements CheckerRunner {
     run(output: string, solution: string, problemHandler: ProblemHandler) {
         return output === solution ? TestcaseStatus.PASSED : TestcaseStatus.FAILED
@@ -33,8 +62,8 @@ const __checkers: Record<Checker, CheckerInfo> = {
     },
     [Checker.ELASTIC]: {
         checker: Checker.ELASTIC,
-        runner: new STDRunner(),
-        implemented: false,
+        runner: new ElasticRunner(),
+        implemented: true,
         driver: "std",
     },
     [Checker.ELASTIC2]: {
