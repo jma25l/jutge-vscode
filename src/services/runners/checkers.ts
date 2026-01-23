@@ -1,5 +1,4 @@
 import { ProblemHandler, TestcaseStatus } from "@/types"
-import * as vscode from "vscode"
 
 export enum Checker {
     STD = "std",
