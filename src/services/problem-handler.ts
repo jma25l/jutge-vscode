@@ -10,6 +10,7 @@ import {
     proglangInfoGet,
 } from "@/services/runners/languages"
 import {
+    CustomTestcase,
     InputExpected,
     Problem,
     TestcaseRun,
@@ -178,8 +179,22 @@ export class ProblemHandler extends Logger {
             const { problem_nm } = this.problem_
             this.__sendUpdateCustom(problem_nm, index, TestcaseStatus.RUNNING)
 
-            const output = await this.__run(testcase, filePath)
-            this.__sendUpdateCustom(problem_nm, index, TestcaseStatus.PASSED, output)
+            const output = await this.__run(testcase.input, filePath)
+            if (testcase.solution === undefined) {
+                this.__sendUpdateCustom(problem_nm, index, TestcaseStatus.PASSED, output)
+                return true
+            } else if (this.problem_.handler?.handler === "std") {
+                console.log("checking")
+                const checker = checkerInfoByName(this.problem_.handler?.checker)
+                const uniformed = output.replaceAll("\r\n", "\n")
+                const expected = testcase.solution
+                const passed = checker.runner.run(uniformed, expected, this.problem_.handler)
+                this.__sendUpdateCustom(problem_nm, index, passed, output)
+                return passed === TestcaseStatus.PASSED
+            } else {
+                this.__sendUpdateCustom(problem_nm, index, TestcaseStatus.PASSED, output)
+                return true
+            }
 
             return true
             //
@@ -355,7 +370,7 @@ export class ProblemHandler extends Logger {
         return decodeTestcase(testcases[k])
     }
 
-    async __getCustomTestcase(index: number): Promise<string> {
+    async __getCustomTestcase(index: number): Promise<CustomTestcase> {
         const { customTestcases } = this.panel_
         if (customTestcases === null) {
             throw new Error(`Internal Error: there are no custom testcases!`)
@@ -364,7 +379,7 @@ export class ProblemHandler extends Logger {
         if (k < 0 || k >= customTestcases.length) {
             throw new Error(`Internal error: custom testcase index ${index} does not exist!`)
         }
-        return customTestcases[k].input
+        return customTestcases[k]
     }
 
     async __getDocument(filePath: string): Promise<vscode.TextDocument> {

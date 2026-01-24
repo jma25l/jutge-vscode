@@ -105,6 +105,9 @@ const postMessageForTestcase = (command: WebviewToVSCodeCommand) =>
 
 const runTestcase = postMessageForTestcase(WebviewToVSCodeCommand.RUN_TESTCASE)
 const editTestcase = postMessageForTestcase(WebviewToVSCodeCommand.EDIT_TESTCASE)
+const editTestcaseSolution = postMessageForTestcase(
+    WebviewToVSCodeCommand.EDIT_TESTCASE_SOLUTION
+)
 const runCustomTestcase = postMessageForTestcase(WebviewToVSCodeCommand.RUN_CUSTOM_TESTCASE)
 
 function copyToClipboard() {
@@ -234,6 +237,9 @@ function addEventListeners() {
 
     document.querySelectorAll('[id^="run-testcase-"]').forEach(onClick(runTestcase))
     document.querySelectorAll('[id^="edit-testcase-"]').forEach(onClick(editTestcase))
+    document
+        .querySelectorAll('[id^="edit-solution-testcase-"]')
+        .forEach(onClick(editTestcaseSolution))
     document
         .querySelectorAll('[id^="run-custom-testcase-"]')
         .forEach(onClick(runCustomTestcase))

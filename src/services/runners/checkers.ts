@@ -2,6 +2,7 @@ import { ProblemHandler, TestcaseStatus } from "@/types"
 
 export enum Checker {
     STD = "std",
+    LOOSE = "loose",
     ELASTIC = "elastic",
     ELASTIC2 = "elastic2",
     UNK = "unk", //ficticious checker
@@ -18,17 +19,80 @@ export interface CheckerInfo {
     driver: string
 }
 
-class ElasticRunner implements CheckerRunner {
+class Elastic2Runner implements CheckerRunner {
+    standarize(sol: string, s: string, starting: string, ending: string) {
+        if (sol.startsWith(starting) && sol.endsWith(ending)) {
+            const t = sol.slice(starting.length, -ending.length)
+            return starting + t.split(s).sort().join(s) + ending
+        }
+        return ""
+    }
+
     run(output: string, solution: string, problemHandler: ProblemHandler) {
         if (output === solution) {
             return TestcaseStatus.PASSED
         }
 
-        const aV = output.split("\n")
-        aV.pop() // Remove final line after endl
+        if (
+            !problemHandler.separator1 ||
+            !problemHandler.separator2 ||
+            !problemHandler.starting ||
+            !problemHandler.ending
+        ) {
+            return TestcaseStatus.FAILED
+        }
 
-        const bV = solution.split("\n")
-        bV.pop()
+        const aV = output.split(problemHandler.separator1)
+        aV.pop() // Remove empty line after final endl
+
+        const bV = solution.split(problemHandler.separator1)
+        bV.pop() // Remove empty line after final endl
+
+        if (aV.length !== bV.length) {
+            return TestcaseStatus.FAILED
+        }
+
+        const aV2 = aV
+            .map((x) =>
+                this.standarize(
+                    x,
+                    problemHandler.separator2 || "",
+                    problemHandler.starting || "",
+                    problemHandler.ending || ""
+                )
+            )
+            .sort()
+        const bV2 = bV
+            .map((x) =>
+                this.standarize(
+                    x,
+                    problemHandler.separator2 || "",
+                    problemHandler.starting || "",
+                    problemHandler.ending || ""
+                )
+            )
+            .sort()
+
+        return aV2.join(problemHandler.separator1) === bV2.join(problemHandler.separator1)
+            ? TestcaseStatus.PASSED
+            : TestcaseStatus.FAILED
+    }
+}
+
+class ElasticRunner implements CheckerRunner {
+    run(output: string, solution: string, problemHandler: ProblemHandler) {
+        if (output === solution) {
+            return TestcaseStatus.PASSED
+        }
+        if (!problemHandler.separator) {
+            return TestcaseStatus.FAILED
+        }
+
+        const aV = output.split(problemHandler.separator)
+        aV.pop() // Remove empty line after final endl
+
+        const bV = solution.split(problemHandler.separator)
+        bV.pop() // Remove empty line after final endl
 
         if (aV.length !== bV.length) {
             return TestcaseStatus.FAILED
@@ -37,13 +101,9 @@ class ElasticRunner implements CheckerRunner {
         aV.sort()
         bV.sort()
 
-        const n = aV.length
-        for (let i = 0; i < n; ++i) {
-            if (aV[i] !== bV[i]) {
-                return TestcaseStatus.FAILED
-            }
-        }
-        return TestcaseStatus.PASSED
+        return aV.join(problemHandler.separator) === bV.join(problemHandler.separator)
+            ? TestcaseStatus.PASSED
+            : TestcaseStatus.FAILED
     }
 }
 
@@ -60,6 +120,12 @@ const __checkers: Record<Checker, CheckerInfo> = {
         implemented: true,
         driver: "std",
     },
+    [Checker.LOOSE]: {
+        checker: Checker.LOOSE,
+        runner: new STDRunner(),
+        implemented: true,
+        driver: "std",
+    },
     [Checker.ELASTIC]: {
         checker: Checker.ELASTIC,
         runner: new ElasticRunner(),
@@ -68,8 +134,8 @@ const __checkers: Record<Checker, CheckerInfo> = {
     },
     [Checker.ELASTIC2]: {
         checker: Checker.ELASTIC2,
-        runner: new STDRunner(),
-        implemented: false,
+        runner: new Elastic2Runner(),
+        implemented: true,
         driver: "std",
     },
     [Checker.UNK]: {

@@ -132,10 +132,15 @@ export function htmlForGraphicTestcase(testcase: Testcase, index: number): strin
 }
 
 export function htmlForCustomTestcase(customTestcase: CustomTestcase) {
-    const { index, input: text } = customTestcase
+    const { index, input: text, solution: text_solution } = customTestcase
     const input = {
         actual: text,
         displayed: makeSpacesVisible(text),
+    }
+
+    const solution = {
+        actual: text_solution || "",
+        displayed: makeSpacesVisible(text_solution || ""),
     }
 
     return /*html*/ `
@@ -147,6 +152,10 @@ export function htmlForCustomTestcase(customTestcase: CustomTestcase) {
                     <div class="icon">${icons["edit"]()}</div>
                     <span>Edit</span>
                 </div>
+                <div id="edit-solution-testcase-${index}" class="small-button" title="Edit solution">
+                    <div class="icon">${icons["edit"]()}</div>
+                    <span>Edit sol</span>
+                </div>
                 <div id="run-custom-testcase-${index}" class="small-button" title="Run this testcase only">
                     <div class="icon">${icons["run"]()}</div>
                     <span>Run</span>
@@ -155,6 +164,8 @@ export function htmlForCustomTestcase(customTestcase: CustomTestcase) {
             <div class="content">
                 <div class="two-column">
                     ${htmlTestcaseRawTextContainer("Input", input, { copyToClipboard: true })}
+                    ${text_solution ? htmlTestcaseRawTextContainer("Expected Output:", solution, { copyToClipboard: true }) : ""}
+
                     <div class="container received">
                         <div class="title">Received Output:</div>
                         <div id="received" class="selectable textarea"><pre></pre></div>

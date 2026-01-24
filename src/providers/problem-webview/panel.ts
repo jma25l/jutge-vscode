@@ -129,6 +129,21 @@ export class ProblemWebviewPanel extends Logger {
         this.panel.reveal(vscode.ViewColumn.Beside, true)
     }
 
+    async editTestcaseSolutionByIndex(index: number) {
+        const workspaceFolder = await getWorkspaceFolderOrPickOne()
+        if (!workspaceFolder) {
+            return
+        }
+        const filename = FileService.makeTestcaseFilename(this.problem, index, true)
+        const fileUri = vscode.Uri.joinPath(workspaceFolder.uri, filename)
+        if (!existsSync(fileUri.fsPath)) {
+            await FileService.createNewTestcaseSolutionFile(this.problem, index, "To be added")
+        }
+        const document = await vscode.workspace.openTextDocument(fileUri)
+        await showCodeDocument(document)
+        this.panel.reveal(vscode.ViewColumn.Beside, true)
+    }
+
     private async _handleMessage(message: WebviewToVSCodeMessage) {
         console.debug(`[ProblemWebviewPanel] Received message from webview: ${message.command}`)
 
@@ -155,6 +170,9 @@ export class ProblemWebviewPanel extends Logger {
 
             case WebviewToVSCodeCommand.EDIT_TESTCASE:
                 return this.editTestcaseByIndex(data.testcaseId)
+
+            case WebviewToVSCodeCommand.EDIT_TESTCASE_SOLUTION:
+                return this.editTestcaseSolutionByIndex(data.testcaseId)
 
             case WebviewToVSCodeCommand.RUN_CUSTOM_TESTCASE:
                 return this.handler.runCustomTestcaseByIndex(data.testcaseId)

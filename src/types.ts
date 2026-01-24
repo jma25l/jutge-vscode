@@ -65,6 +65,7 @@ export type ProblemHandler = {
 export type CustomTestcase = {
     index: number
     input: string
+    solution: string | undefined
 }
 
 export type Problem = {
@@ -111,6 +112,7 @@ export enum WebviewToVSCodeCommand {
     RUN_ALL_TESTCASES = "run-all-testcases",
     RUN_TESTCASE = "run-testcase",
     EDIT_TESTCASE = "edit-testcase",
+    EDIT_TESTCASE_SOLUTION = "edit-testcase-solution",
     RUN_CUSTOM_TESTCASE = "run-custom-testcase",
     ADD_NEW_TESTCASE = "add-new-testcase",
     SHOW_DIFF = "show-diff",
