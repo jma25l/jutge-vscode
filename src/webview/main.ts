@@ -271,6 +271,9 @@ function updateCustomTestcases(customTestcases: string[] /* html for testcases *
     customTestcasesDiv.innerHTML = htmlCustomTestcases(customTestcases)
 
     customTestcasesDiv.querySelectorAll('[id^="edit-testcase-"]').forEach(onClick(editTestcase))
+    customTestcasesDiv
+        .querySelectorAll('[id^="edit-solution-testcase-"]')
+        .forEach(onClick(editTestcaseSolution))
 
     customTestcasesDiv
         .querySelectorAll('[id^="run-custom-testcase-"]')

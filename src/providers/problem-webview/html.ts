@@ -375,7 +375,6 @@ export function htmlWebview(data: WebviewHTMLData) {
                         &ndash; ${handler?.handler || "?"} 
                         &ndash; ${handler?.source_modifier || "?"} 
                         &ndash; ${handler?.compilers || "?"}
-                        &ndash; ${handler?.checker || "?"}
                     </h2>
                     ${htmlOpenExistingFileButton(data)}
                     ${htmlButton({

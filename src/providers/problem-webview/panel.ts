@@ -142,6 +142,7 @@ export class ProblemWebviewPanel extends Logger {
         const document = await vscode.workspace.openTextDocument(fileUri)
         await showCodeDocument(document)
         this.panel.reveal(vscode.ViewColumn.Beside, true)
+        await this.notifyProblemFilesChanges()
     }
 
     private async _handleMessage(message: WebviewToVSCodeMessage) {
