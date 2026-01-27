@@ -236,6 +236,9 @@ export class FileService extends StaticLogger {
                 if (existsSync(solPath)) {
                     console.log(solPath)
                     correction = (await readFile(solPath)).toString().replaceAll(/\r\n/g, "\n")
+                    if (!correction.endsWith("\n")) {
+                        correction += "\n"
+                    }
                 }
 
                 customTestcases.push({
