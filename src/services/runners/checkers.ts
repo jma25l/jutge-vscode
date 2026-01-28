@@ -19,6 +19,37 @@ export interface CheckerInfo {
     driver: string
 }
 
+class STDRunner implements CheckerRunner {
+    run(output: string, solution: string, problemHandler: ProblemHandler) {
+        return output === solution ? TestcaseStatus.PASSED : TestcaseStatus.FAILED
+    }
+}
+
+class ElasticRunner implements CheckerRunner {
+    run(output: string, solution: string, problemHandler: ProblemHandler) {
+        if (output === solution) {
+            return TestcaseStatus.PASSED
+        }
+        if (!problemHandler.separator) {
+            return TestcaseStatus.FAILED
+        }
+
+        const aV = output.split(problemHandler.separator)
+        const bV = solution.split(problemHandler.separator)
+
+        if (aV.length !== bV.length) {
+            return TestcaseStatus.FAILED
+        }
+
+        aV.sort()
+        bV.sort()
+
+        return aV.join(problemHandler.separator) === bV.join(problemHandler.separator)
+            ? TestcaseStatus.PASSED
+            : TestcaseStatus.FAILED
+    }
+}
+
 class Elastic2Runner implements CheckerRunner {
     standarize(sol: string, s: string, starting: string, ending: string) {
         if (sol.startsWith(starting) && sol.endsWith(ending)) {
@@ -29,6 +60,7 @@ class Elastic2Runner implements CheckerRunner {
     }
 
     run(output: string, solution: string, problemHandler: ProblemHandler) {
+        //Note (jma25l): This is way simpler than the original elastic2, as considers PE wrong.
         if (output === solution) {
             return TestcaseStatus.PASSED
         }
@@ -43,10 +75,7 @@ class Elastic2Runner implements CheckerRunner {
         }
 
         const aV = output.split(problemHandler.separator1)
-        aV.pop() // Remove empty line after final endl
-
         const bV = solution.split(problemHandler.separator1)
-        bV.pop() // Remove empty line after final endl
 
         if (aV.length !== bV.length) {
             return TestcaseStatus.FAILED
@@ -79,40 +108,6 @@ class Elastic2Runner implements CheckerRunner {
     }
 }
 
-class ElasticRunner implements CheckerRunner {
-    run(output: string, solution: string, problemHandler: ProblemHandler) {
-        if (output === solution) {
-            return TestcaseStatus.PASSED
-        }
-        if (!problemHandler.separator) {
-            return TestcaseStatus.FAILED
-        }
-
-        const aV = output.split(problemHandler.separator)
-        aV.pop() // Remove empty line after final endl
-
-        const bV = solution.split(problemHandler.separator)
-        bV.pop() // Remove empty line after final endl
-
-        if (aV.length !== bV.length) {
-            return TestcaseStatus.FAILED
-        }
-
-        aV.sort()
-        bV.sort()
-
-        return aV.join(problemHandler.separator) === bV.join(problemHandler.separator)
-            ? TestcaseStatus.PASSED
-            : TestcaseStatus.FAILED
-    }
-}
-
-class STDRunner implements CheckerRunner {
-    run(output: string, solution: string, problemHandler: ProblemHandler) {
-        return output === solution ? TestcaseStatus.PASSED : TestcaseStatus.FAILED
-    }
-}
-
 const __checkers: Record<Checker, CheckerInfo> = {
     [Checker.STD]: {
         checker: Checker.STD,
@@ -121,6 +116,7 @@ const __checkers: Record<Checker, CheckerInfo> = {
         driver: "std",
     },
     [Checker.LOOSE]: {
+        //Defining it splicitly, PEs are considered wrong.
         checker: Checker.LOOSE,
         runner: new STDRunner(),
         implemented: true,
@@ -166,7 +162,7 @@ export function checkerInfoGet(checker: Checker): CheckerInfo {
 
 export function checkerInfoByName(name: string | undefined) {
     if (!name) {
-        return checkerInfoGet(Checker.STD)
+        return checkerInfoGet(Checker.STD) //Default checker
     }
     return checkerInfoGet(name as Checker)
 }

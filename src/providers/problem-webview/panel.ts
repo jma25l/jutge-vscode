@@ -7,6 +7,7 @@ import { JutgeService } from "@/services/jutge"
 import { ProblemHandler } from "@/services/problem-handler"
 import {
     CustomTestcase,
+    LanguageCode,
     Problem,
     VSCodeToWebviewCommand,
     WebviewToVSCodeCommand,
@@ -33,23 +34,30 @@ export class ProblemWebviewPanel extends Logger {
     public problem: Problem
     public order: number
     public fileExists: boolean
+    public langId: LanguageCode | undefined
     public problemHandler: ProblemHandler | null = null
     public customTestcases: CustomTestcase[] | null = null
 
     public constructor(
         panel: vscode.WebviewPanel,
-        { problemNm, title, order, fileExists }: ProblemWebviewState
+        { problemNm, title, order, fileExists }: ProblemWebviewState,
+        langId?: LanguageCode
     ) {
         super()
 
         this.problem = {
-            problem_id: utils.getDefaultProblemId(problemNm),
+            problem_id: langId
+                ? problemNm + "_" + langId
+                : utils.getDefaultProblemId(problemNm),
             problem_nm: problemNm,
             title: title || "",
             language_id: null,
             handler: null,
             statementHtml: null,
             testcases: null,
+        }
+        if (langId) {
+            this.langId = langId
         }
         this.order = order
         this.fileExists = fileExists || false
@@ -240,7 +248,8 @@ export class ProblemWebviewPanel extends Logger {
                     const absProb = await JutgeService.getAbstractProblem(problemNm)
                     const { problem_id, title } = this.__chooseConcreteProblem(
                         problemNm,
-                        absProb
+                        absProb,
+                        this.langId
                     )
                     this.problem.title = title
                     this.problem.problem_id = problem_id
@@ -302,7 +311,10 @@ export class ProblemWebviewPanel extends Logger {
         const concreteProblems = absProb.problems
         let problem
         let id = `${problemNm}_${langId}`
-        if (concreteProblems[id]) {
+
+        if (this.langId && concreteProblems[`${problemNm}_${this.langId}`]) {
+            problem = concreteProblems[`${problemNm}_${this.langId}`]
+        } else if (concreteProblems[id]) {
             problem = concreteProblems[id]
         } else {
             console.warn(
