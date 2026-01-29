@@ -165,10 +165,16 @@ export class ProblemHandler extends Logger {
         }
     }
 
-    async runCustomTestcaseByIndex(index: number): Promise<boolean> {
+    async runCustomTestcaseByIndex(
+        index: number,
+        options: { saveFirst: boolean } = { saveFirst: true }
+    ): Promise<boolean> {
         try {
             // Save the current file first
-            await vscode.commands.executeCommand("workbench.action.files.save")
+            if (options?.saveFirst) {
+                // Save the current file first
+                await vscode.commands.executeCommand("workbench.action.files.save")
+            }
 
             const filePath = await this.__getEditorFilepath()
             this.log.debug(`Running testcase on file ${filePath}`)
@@ -189,14 +195,12 @@ export class ProblemHandler extends Logger {
                 const uniformed = output.replaceAll("\r\n", "\n")
                 const expected = testcase.solution
                 const passed = checker.runner.run(uniformed, expected, this.problem_.handler)
-                this.__sendUpdateCustom(problem_nm, index, passed, output)
+                this.__sendUpdateCustom(problem_nm, index, passed, output, true)
                 return passed === TestcaseStatus.PASSED
             } else {
                 this.__sendUpdateCustom(problem_nm, index, TestcaseStatus.PASSED, output)
                 return true
             }
-
-            return true
             //
         } catch (e: unknown) {
             this.log.error(e)
@@ -212,13 +216,27 @@ export class ProblemHandler extends Logger {
             // Save the current file first
             await vscode.commands.executeCommand("workbench.action.files.save")
 
-            const testcases = await this.__ensureTestcases()
+            const testcases = await this.__ensureTestcases(false)
+            if (
+                testcases.length === 0 &&
+                (!this.panel_.customTestcases || this.panel_.customTestcases.length === 0)
+            ) {
+                throw new Error(`No testcases found for problem ${this.problem_.problem_nm}`)
+            }
             this.log.debug(`Running all testcases for problem ${this.problem_.problem_id}`)
 
             let allPassed = true
             for (let index = 1; index <= testcases.length; index++) {
                 allPassed =
                     allPassed && (await this.runTestcaseByIndex(index, { saveFirst: false }))
+            }
+
+            if (this.panel_.customTestcases) {
+                for (let index = 1; index <= this.panel_.customTestcases.length; index++) {
+                    allPassed =
+                        allPassed &&
+                        (await this.runCustomTestcaseByIndex(index, { saveFirst: false }))
+                }
             }
 
             return allPassed
@@ -333,12 +351,14 @@ export class ProblemHandler extends Logger {
         problemNm: string,
         testcaseId: number,
         status: TestcaseStatus,
-        output: string | null = ""
+        output: string | null = "",
+        withSolution: boolean = false
     ) {
         this.__sendMessage(VSCodeToWebviewCommand.UPDATE_CUSTOM_TESTCASE_STATUS, problemNm, {
             testcaseId,
             status,
             output,
+            withSolution,
         })
     }
 
@@ -350,15 +370,19 @@ export class ProblemHandler extends Logger {
         return editor.document.uri.fsPath
     }
 
-    async __ensureTestcases(): Promise<Testcase[]> {
+    async __ensureTestcases(strict: boolean = true): Promise<Testcase[]> {
         const { testcases } = this.problem_
-        if (!testcases || testcases.length === 0) {
+
+        if (testcases && testcases.length > 0) {
+            this.log.debug(
+                `Found ${testcases.length} testcases for problem ${this.problem_.problem_nm}`
+            )
+            return testcases
+        } else if (strict) {
             throw new Error(`No testcases found for problem ${this.problem_.problem_nm}`)
+        } else {
+            return []
         }
-        this.log.debug(
-            `Found ${testcases.length} testcases for problem ${this.problem_.problem_nm}`
-        )
-        return testcases
     }
 
     async __getTestcase(index: number): Promise<InputExpected> {

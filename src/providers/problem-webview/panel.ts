@@ -248,8 +248,7 @@ export class ProblemWebviewPanel extends Logger {
                     const absProb = await JutgeService.getAbstractProblem(problemNm)
                     const { problem_id, title } = this.__chooseConcreteProblem(
                         problemNm,
-                        absProb,
-                        this.langId
+                        absProb
                     )
                     this.problem.title = title
                     this.problem.problem_id = problem_id

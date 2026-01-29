@@ -64,8 +64,8 @@ function onEvent(event: MessageEvent<any>) {
             break
         }
         case VSCodeToWebviewCommand.UPDATE_CUSTOM_TESTCASE_STATUS: {
-            const { testcaseId, status, output } = message.data
-            updateTestcaseStatus(testcaseId, status, output, "custom")
+            const { testcaseId, status, output, withSolution } = message.data
+            updateTestcaseStatus(testcaseId, status, output, "custom", withSolution)
             updateCollapseButton("custom")
             break
         }
@@ -294,7 +294,8 @@ function updateTestcaseStatus(
     testcaseIndex: number,
     status: string,
     outputText: string,
-    testcaseType: "custom" | "normal"
+    testcaseType: "custom" | "normal",
+    withSolution: boolean = true
 ) {
     const testcaseId =
         testcaseType === "normal"
@@ -344,7 +345,7 @@ function updateTestcaseStatus(
         case "passed":
             setTestcaseAppearance(testcaseType === "normal" ? "Passed" : "Done", "green")
             setOutput(outputText)
-            content.style.display = testcaseType === "normal" ? "none" : "flex"
+            content.style.display = testcaseType === "normal" || withSolution ? "none" : "flex"
             content.classList.remove("compare")
             passedTestcases.set(testcaseId, true)
             break
